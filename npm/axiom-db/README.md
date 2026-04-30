@@ -1,10 +1,10 @@
-# PulsarDB CLI
+# AxiomDB CLI
 
 > Multi-branch Postgres database management from your terminal — built in Rust.
 
 ```
         ●●●●
-      ●●●●●●●●          P U L S A R  D B
+      ●●●●●●●●          A X I O M  D B
      ●●●●●●●●●●         Database control plane
     ●●●●●●●●●●●●
    ●●●●●●●●●●●●●●     ▸ Multi-branch Postgres
@@ -17,23 +17,23 @@
 ## Installation
 
 ```bash
-npm install -g pulsardb
+npm install -g axiom-db
 ```
 
 ## Quick start
 
 ```bash
-pulsardb login                      # Log in (interactive)
-pulsardb projects list              # List all projects
-pulsardb projects create            # Create a new project (provisions a real DB on VPS)
-pulsardb projects use <id>          # Set active project context
-pulsardb branches list              # List branches (uses active project)
-pulsardb branches create            # Create a branch (max 10 per project)
-pulsardb monitoring summary         # CPU / RAM / Postgres health
-pulsardb monitoring stream          # Live metric stream (SSE)
-pulsardb gen tk                     # Prisma-ready DATABASE_URL + DIRECT_URL
-pulsardb secrets generate           # Generate a cryptographic secret
-pulsardb audit list                 # View audit event log
+axiom login                      # Log in (interactive)
+axiom projects list              # List all projects
+axiom projects create            # Create a new project (provisions a real DB on VPS)
+axiom projects use <id>          # Set active project context
+axiom branches list              # List branches (uses active project)
+axiom branches create            # Create a branch (max 10 per project)
+axiom monitoring summary         # CPU / RAM / Postgres health
+axiom monitoring stream          # Live metric stream (SSE)
+axiom gen tk                     # Prisma-ready DATABASE_URL + DIRECT_URL
+axiom secrets generate           # Generate a cryptographic secret
+axiom audit list                 # View audit event log
 ```
 
 ## Commands
@@ -66,19 +66,19 @@ pulsardb audit list                 # View audit event log
 
 | Platform | Package |
 |---|---|
-| macOS Apple Silicon | `@pulsardb/cli-darwin-arm64` |
-| macOS Intel | `@pulsardb/cli-darwin-x64` |
-| Linux x64 | `@pulsardb/cli-linux-x64` |
-| Linux ARM64 | `@pulsardb/cli-linux-arm64` |
-| Windows x64 | `@pulsardb/cli-win32-x64` |
+| macOS Apple Silicon | `@axiom-db/cli-darwin-arm64` |
+| macOS Intel | `@axiom-db/cli-darwin-x64` |
+| Linux x64 | `@axiom-db/cli-linux-x64` |
+| Linux ARM64 | `@axiom-db/cli-linux-arm64` |
+| Windows x64 | `@axiom-db/cli-win32-x64` |
 
 ## Build from source
 
 ```bash
-git clone https://github.com/squareexp/pulsardb
-cd pulsardb
+git clone https://github.com/squareexp/axiom-db
+cd axiom-db
 cargo build --release
-./target/release/pulsardb --help
+./target/release/axiom-db --help
 ```
 
 ## License

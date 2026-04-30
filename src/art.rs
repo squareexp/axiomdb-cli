@@ -21,7 +21,7 @@ pub fn orange_dim(s: &str) -> colored::ColoredString {
 }
 
 // ── Logo ────────────────────────────────────────────────────────────────────
-//  The PulsarDB pulsar-dot logo, orange gradient top→bottom
+//  The AxiomDB pulsar-dot logo, orange gradient top→bottom
 
 pub fn logo_lines() -> Vec<String> {
     // Each tuple: (line text, r, g, b)
@@ -60,7 +60,7 @@ pub fn print_banner() {
     // Pair each logo row with a wordmark line
     let wordmark: &[&str] = &[
         "",
-        &format!("  {}", orange_bright("P U L S A R  D B").bold()),
+        &format!("  {}", orange_bright("A X I O M  D B").bold()),
         &format!("  {}", "Database control plane".truecolor(150, 150, 150)),
         "",
         &format!("  {} {}", orange("▸").bold(), "Multi-branch Postgres"),
@@ -94,7 +94,7 @@ pub fn print_welcome() {
     println!();
     println!(
         "    {}",
-        "pulsardb login".truecolor(255, 140, 0).bold()
+        "axiom login".truecolor(255, 140, 0).bold()
     );
     println!();
 }

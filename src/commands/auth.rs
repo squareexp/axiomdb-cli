@@ -12,7 +12,7 @@ pub use crate::art::{spinner, pulse_spinner};
 
 #[derive(Subcommand)]
 pub enum AuthCmd {
-    /// Log in to a PulsarDB server
+    /// Log in to a AxiomDB server
     Login {
         #[arg(short, long, help = "Server base URL")]
         url: Option<String>,
@@ -125,7 +125,7 @@ pub fn do_whoami() -> Result<()> {
     let cfg = config::load();
     match cfg.tokens {
         None => {
-            display::err("Not logged in. Run: pulsardb login");
+            display::err("Not logged in. Run: axiom login");
             std::process::exit(1);
         }
         Some(t) => {

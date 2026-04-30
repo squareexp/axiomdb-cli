@@ -21,7 +21,7 @@ pub enum ProjectsCmd {
         /// Project ID (omit to use current context)
         project_id: Option<String>,
     },
-    /// Set the active project context (saves to ~/.config/pulsardb/config.json)
+    /// Set the active project context (saves to ~/.config/axiom/config.json)
     Use { project_id: String },
     /// Show the currently selected project
     Current,
@@ -114,7 +114,7 @@ async fn list() -> Result<()> {
     display::header(&format!("Projects ({})", res.projects.len()));
 
     if res.projects.is_empty() {
-        println!("  No projects yet. Run: pulsardb projects create");
+        println!("  No projects yet. Run: axiom projects create");
         return Ok(());
     }
 
@@ -141,7 +141,7 @@ async fn list() -> Result<()> {
     } else {
         println!("  {} Run {} to set a project context.",
             "tip:".truecolor_str(100, 100, 100),
-            "pulsardb projects use <id>".truecolor_str(255, 140, 0)
+            "axiom projects use <id>".truecolor_str(255, 140, 0)
         );
     }
     Ok(())
@@ -270,7 +270,7 @@ fn current_project() -> Result<()> {
             println!();
         }
         None => {
-            display::info("No active project. Run: pulsardb projects use <id>");
+            display::info("No active project. Run: axiom projects use <id>");
         }
     }
     Ok(())

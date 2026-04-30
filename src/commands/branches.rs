@@ -67,7 +67,7 @@ async fn list(project_id: String) -> Result<()> {
 
     display::header(&format!("Branches for {project_id}"));
     if res.branches.is_empty() {
-        println!("  No branches yet. Run: pulsardb branches create {project_id}");
+        println!("  No branches yet. Run: axiom branches create {project_id}");
         return Ok(());
     }
 

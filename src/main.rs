@@ -24,23 +24,23 @@ use commands::{
 
 #[derive(Parser)]
 #[command(
-    name = "pulsardb",
+    name = "axiom",
     version = "0.1.0",
     author = "Square Exp <info@squareexp.com>",
-    about = "\x1b[38;2;255;140;0m\x1b[1mPulsarDB CLI\x1b[0m — multi-branch Postgres database management",
+    about = "\x1b[38;2;255;140;0m\x1b[1mAxiomDB CLI\x1b[0m — multi-branch Postgres database management",
     long_about = None,
     after_help = concat!(
         "\x1b[38;2;255;140;0m\x1b[1mQuick start:\x1b[0m\n",
-        "  \x1b[38;2;255;140;0mpulsardb login\x1b[0m                      Log in to PulsarDB\n",
-        "  \x1b[38;2;255;140;0mpulsardb whoami\x1b[0m                     Show current session\n",
-        "  \x1b[38;2;255;140;0mpulsardb projects list\x1b[0m              List all projects\n",
-        "  \x1b[38;2;255;140;0mpulsardb projects create\x1b[0m            Create a new project\n",
-        "  \x1b[38;2;255;140;0mpulsardb branches list <id>\x1b[0m         List branches\n",
-        "  \x1b[38;2;255;140;0mpulsardb monitoring summary <id>\x1b[0m    Health metrics\n",
-        "  \x1b[38;2;255;140;0mpulsardb monitoring stream <id>\x1b[0m     Live SSE stream\n",
-        "  \x1b[38;2;255;140;0mpulsardb gen tk <id>\x1b[0m                Prisma-ready DB URLs\n",
-        "  \x1b[38;2;255;140;0mpulsardb secrets generate\x1b[0m           Generate a secret\n",
-        "  \x1b[38;2;255;140;0mpulsardb audit list\x1b[0m                 View audit log\n",
+        "  \x1b[38;2;255;140;0maxiom login\x1b[0m                      Log in to AxiomDB\n",
+        "  \x1b[38;2;255;140;0maxiom whoami\x1b[0m                     Show current session\n",
+        "  \x1b[38;2;255;140;0maxiom projects list\x1b[0m              List all projects\n",
+        "  \x1b[38;2;255;140;0maxiom projects create\x1b[0m            Create a new project\n",
+        "  \x1b[38;2;255;140;0maxiom branches list <id>\x1b[0m         List branches\n",
+        "  \x1b[38;2;255;140;0maxiom monitoring summary <id>\x1b[0m    Health metrics\n",
+        "  \x1b[38;2;255;140;0maxiom monitoring stream <id>\x1b[0m     Live SSE stream\n",
+        "  \x1b[38;2;255;140;0maxiom gen tk <id>\x1b[0m                Prisma-ready DB URLs\n",
+        "  \x1b[38;2;255;140;0maxiom secrets generate\x1b[0m           Generate a secret\n",
+        "  \x1b[38;2;255;140;0maxiom audit list\x1b[0m                 View audit log\n",
     )
 )]
 struct Cli {
@@ -51,7 +51,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     // ── Root shortcuts ───────────────────────────────────────────────────────
-    /// Log in to PulsarDB
+    /// Log in to AxiomDB
     Login {
         #[arg(short, long)] url: Option<String>,
         #[arg(short, long)] email: Option<String>,

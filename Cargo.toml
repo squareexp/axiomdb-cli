@@ -1,16 +1,16 @@
 [package]
-name = "pulsardb"
+name = "axiom-db"
 version = "0.1.0"
 edition = "2021"
-description = "Official CLI for PulsarDB — manage projects, branches, secrets and monitoring from your terminal"
+description = "Official CLI for AxiomDB — manage projects, branches, secrets and monitoring from your terminal "
 license = "MIT"
-homepage = "https://github.com/squareexp/pulsardb"
-repository = "https://github.com/squareexp/pulsardb"
-keywords = ["pulsardb", "database", "cli", "postgres", "devtools"]
+homepage = "https://github.com/squareexp/axiom-db"
+repository = "https://github.com/squareexp/axiom-db"
+keywords = ["axiom", "database", "cli", "postgres", "devtools","self-hosted-db"]
 categories = ["command-line-utilities", "database"]
 
 [[bin]]
-name = "pulsardb"
+name = "axiom"
 path = "src/main.rs"
 
 [dependencies]

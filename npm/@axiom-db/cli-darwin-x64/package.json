@@ -1,0 +1,19 @@
+{
+  "name": "@axiom-db/cli-darwin-x64",
+  "version": "0.1.0",
+  "description": "AxiomDB CLI binary for darwin x64",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/squareexp/axiom-db.git"
+  },
+  "files": [
+    "bin/axiom"
+  ]
+}

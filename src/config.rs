@@ -16,7 +16,7 @@ pub struct Config {
     #[serde(default = "default_base_url")]
     pub base_url: String,
     pub tokens: Option<Tokens>,
-    /// Currently selected project ID (set via `pulsardb projects use <id>`)
+    /// Currently selected project ID (set via `axiom projects use <id>`)
     pub current_project: Option<String>,
 }
 
@@ -37,7 +37,7 @@ impl Default for Config {
 fn config_path() -> PathBuf {
     config_dir()
         .unwrap_or_else(|| PathBuf::from("."))
-        .join("pulsardb")
+        .join("axiom")
         .join("config.json")
 }
 
@@ -101,7 +101,7 @@ pub fn resolve_project(arg: Option<&str>) -> Result<String> {
     let cfg = load();
     cfg.current_project
         .ok_or_else(|| anyhow::anyhow!(
-            "No project selected. Pass a project ID or run:\n  pulsardb projects use <id>"
+            "No project selected. Pass a project ID or run:\n  axiom projects use <id>"
         ))
 }
 
@@ -109,6 +109,6 @@ pub fn require_token() -> Result<String> {
     let cfg = load();
     match cfg.tokens {
         Some(t) if !t.access_token.is_empty() => Ok(t.access_token),
-        _ => bail!("Not logged in. Run: pulsardb login"),
+        _ => bail!("Not logged in. Run: axiom login"),
     }
 }

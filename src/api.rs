@@ -7,7 +7,7 @@ use crate::config;
 
 fn client() -> Client {
     Client::builder()
-        .user_agent("pulsardb-cli/0.1.0")
+        .user_agent("axiom-cli/0.1.0")
         .timeout(std::time::Duration::from_secs(30))
         .build()
         .expect("HTTP client init failed")

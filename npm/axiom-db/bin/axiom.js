@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * PulsarDB CLI — binary shim
+ * AxiomDB CLI — binary shim
  *
  * Resolves the correct pre-built native binary for the current platform
- * from the optionally-installed @pulsardb/cli-<platform> package,
+ * from the optionally-installed @axiom-db/cli-<platform> package,
  * then exec-replaces the process with it.
  *
  * This mirrors the pattern used by esbuild, @biomejs/biome, and SWC.
@@ -23,11 +23,11 @@ function platformPackageName() {
   const arch = os.arch();      // 'arm64' | 'x64'
 
   const supported = {
-    "darwin-arm64":  "@pulsardb/cli-darwin-arm64",
-    "darwin-x64":    "@pulsardb/cli-darwin-x64",
-    "linux-x64":     "@pulsardb/cli-linux-x64",
-    "linux-arm64":   "@pulsardb/cli-linux-arm64",
-    "win32-x64":     "@pulsardb/cli-win32-x64",
+    "darwin-arm64":  "@axiom-db/cli-darwin-arm64",
+    "darwin-x64":    "@axiom-db/cli-darwin-x64",
+    "linux-x64":     "@axiom-db/cli-linux-x64",
+    "linux-arm64":   "@axiom-db/cli-linux-arm64",
+    "win32-x64":     "@axiom-db/cli-win32-x64",
   };
 
   const key = `${plat}-${arch}`;
@@ -35,9 +35,9 @@ function platformPackageName() {
 
   if (!pkg) {
     console.error(
-      `pulsardb: Unsupported platform: ${key}\n` +
+      `axiom: Unsupported platform: ${key}\n` +
       `Supported: ${Object.keys(supported).join(", ")}\n` +
-      `\nYou can build from source: https://github.com/squareexp/pulsardb`
+      `\nYou can build from source: https://github.com/squareexp/axiom`
     );
     process.exit(1);
   }
@@ -49,9 +49,9 @@ function platformPackageName() {
 
 function findBinary() {
   const pkg = platformPackageName();
-  const binaryName = process.platform === "win32" ? "pulsardb.exe" : "pulsardb";
+  const binaryName = process.platform === "win32" ? "axiom.exe" : "axiom";
 
-  // Walk up from the shim to find node_modules/@pulsardb/cli-<platform>
+  // Walk up from the shim to find node_modules/@axiom-db/cli-<platform>
   const candidates = [
     // Installed alongside (standard npm install -g)
     path.join(__dirname, "..", "node_modules", pkg, "bin", binaryName),
@@ -78,11 +78,11 @@ function findBinary() {
   }
 
   console.error(
-    `pulsardb: Could not find the binary for your platform.\n\n` +
+    `axiom: Could not find the binary for your platform.\n\n` +
     `Expected package: ${pkg}\n\n` +
-    `Try re-installing:\n  npm install -g pulsardb\n\n` +
+    `Try re-installing:\n  npm install -g axiom\n\n` +
     `Or if you are in a workspace:\n  npm install ${pkg}\n\n` +
-    `To build from source:\n  https://github.com/squareexp/pulsardb`
+    `To build from source:\n  https://github.com/squareexp/axiom`
   );
   process.exit(1);
 }
@@ -98,7 +98,7 @@ const result = spawnSync(binary, process.argv.slice(2), {
 });
 
 if (result.error) {
-  console.error(`pulsardb: Failed to start binary: ${result.error.message}`);
+  console.error(`axiom: Failed to start binary: ${result.error.message}`);
   process.exit(1);
 }
 
