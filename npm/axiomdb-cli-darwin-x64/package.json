@@ -1,9 +1,9 @@
 {
-  "name": "@axiom-db/cli-linux-x64",
-  "version": "0.1.0",
-  "description": "AxiomDB CLI binary for linux x64",
+  "name": "axiomdb-cli-darwin-x64",
+  "version": "0.1.1",
+  "description": "AxiomDB CLI binary for darwin x64",
   "os": [
-    "linux"
+    "darwin"
   ],
   "cpu": [
     "x64"

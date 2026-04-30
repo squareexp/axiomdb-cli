@@ -22,7 +22,17 @@ target/
 
 # IDE - IntelliJ
 .idea/
+.npmrc
 
 # OS generated files
 .DS_Store
 Thumbs.db
+rename.py
+rename_no_scope.py
+rename_text.py
+*.py
+*.sh
+
+# Ignore built binary artifacts
+npm/*/bin/axiom
+npm/*/bin/axiom.exe

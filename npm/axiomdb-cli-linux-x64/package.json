@@ -1,12 +1,12 @@
 {
-  "name": "@axiom-db/cli-linux-arm64",
-  "version": "0.1.0",
-  "description": "AxiomDB CLI binary for linux arm64",
+  "name": "axiomdb-cli-linux-x64",
+  "version": "0.1.1",
+  "description": "AxiomDB CLI binary for linux x64",
   "os": [
     "linux"
   ],
   "cpu": [
-    "arm64"
+    "x64"
   ],
   "license": "MIT",
   "repository": {

@@ -1,6 +1,6 @@
 {
-  "name": "axiom-db",
-  "version": "0.1.0",
+  "name": "axiomdb-cli",
+  "version": "0.1.1",
   "description": "AxiomDB CLI — multi-branch Postgres database management from your terminal",
   "keywords": [
     "axiom",
@@ -12,17 +12,17 @@
   ],
   "author": "Square Experience <info@squareexp.com>",
   "license": "MIT",
-  "homepage": "https://github.com/squareexp/axiom-db",
+  "homepage": "https://github.com/squareexp/axiomdb-cli",
   "repository": {
     "type": "git",
-    "url": "https://github.com/squareexp/axiom-db.git"
+    "url": "https://github.com/squareexp/axiomdb-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/squareexp/axiom-db/issues"
+    "url": "https://github.com/squareexp/axiomdb-cli/issues"
   },
   "bin": {
-    "axiom": "./bin/axiom.js",
-    "axm": "./bin/axiom.js"
+    "axiom": "bin/axiom.js",
+    "axm": "bin/axiom.js"
   },
   "files": [
     "bin/axiom.js",
@@ -32,10 +32,10 @@
     "node": ">=16.0.0"
   },
   "optionalDependencies": {
-    "@axiom-db/cli-darwin-arm64": "0.1.0",
-    "@axiom-db/cli-darwin-x64": "0.1.0",
-    "@axiom-db/cli-linux-x64": "0.1.0",
-    "@axiom-db/cli-linux-arm64": "0.1.0",
-    "@axiom-db/cli-win32-x64": "0.1.0"
+    "axiomdb-cli-darwin-arm64": "0.1.1",
+    "axiomdb-cli-darwin-x64": "0.1.1",
+    "axiomdb-cli-linux-x64": "0.1.1",
+    "axiomdb-cli-linux-arm64": "0.1.1",
+    "axiomdb-cli-win32-x64": "0.1.1"
   }
 }

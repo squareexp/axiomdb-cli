@@ -1,12 +1,12 @@
 {
-  "name": "@axiom-db/cli-win32-x64",
-  "version": "0.1.0",
-  "description": "AxiomDB CLI binary for win32 x64",
+  "name": "axiomdb-cli-linux-arm64",
+  "version": "0.1.1",
+  "description": "AxiomDB CLI binary for linux arm64",
   "os": [
-    "win32"
+    "linux"
   ],
   "cpu": [
-    "x64"
+    "arm64"
   ],
   "license": "MIT",
   "repository": {
@@ -14,6 +14,6 @@
     "url": "https://github.com/squareexp/axiom-db.git"
   },
   "files": [
-    "bin/axiom.exe"
+    "bin/axiom"
   ]
 }

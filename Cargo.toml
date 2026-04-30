@@ -1,6 +1,6 @@
 [package]
 name = "axiom-db"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Official CLI for AxiomDB — manage projects, branches, secrets and monitoring from your terminal "
 license = "MIT"

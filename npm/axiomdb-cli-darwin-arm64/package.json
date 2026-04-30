@@ -1,12 +1,12 @@
 {
-  "name": "@axiom-db/cli-darwin-x64",
-  "version": "0.1.0",
-  "description": "AxiomDB CLI binary for darwin x64",
+  "name": "axiomdb-cli-darwin-arm64",
+  "version": "0.1.1",
+  "description": "AxiomDB CLI binary for darwin arm64",
   "os": [
     "darwin"
   ],
   "cpu": [
-    "x64"
+    "arm64"
   ],
   "license": "MIT",
   "repository": {

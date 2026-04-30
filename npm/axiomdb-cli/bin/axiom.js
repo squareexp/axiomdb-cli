@@ -3,7 +3,7 @@
  * AxiomDB CLI — binary shim
  *
  * Resolves the correct pre-built native binary for the current platform
- * from the optionally-installed @axiom-db/cli-<platform> package,
+ * from the optionally-installed axiomdb-cli-<platform> package,
  * then exec-replaces the process with it.
  *
  * This mirrors the pattern used by esbuild, @biomejs/biome, and SWC.
@@ -23,11 +23,11 @@ function platformPackageName() {
   const arch = os.arch();      // 'arm64' | 'x64'
 
   const supported = {
-    "darwin-arm64":  "@axiom-db/cli-darwin-arm64",
-    "darwin-x64":    "@axiom-db/cli-darwin-x64",
-    "linux-x64":     "@axiom-db/cli-linux-x64",
-    "linux-arm64":   "@axiom-db/cli-linux-arm64",
-    "win32-x64":     "@axiom-db/cli-win32-x64",
+    "darwin-arm64":  "axiomdb-cli-darwin-arm64",
+    "darwin-x64":    "axiomdb-cli-darwin-x64",
+    "linux-x64":     "axiomdb-cli-linux-x64",
+    "linux-arm64":   "axiomdb-cli-linux-arm64",
+    "win32-x64":     "axiomdb-cli-win32-x64",
   };
 
   const key = `${plat}-${arch}`;
@@ -51,7 +51,7 @@ function findBinary() {
   const pkg = platformPackageName();
   const binaryName = process.platform === "win32" ? "axiom.exe" : "axiom";
 
-  // Walk up from the shim to find node_modules/@axiom-db/cli-<platform>
+  // Walk up from the shim to find node_modules/axiomdb-cli-<platform>
   const candidates = [
     // Installed alongside (standard npm install -g)
     path.join(__dirname, "..", "node_modules", pkg, "bin", binaryName),
