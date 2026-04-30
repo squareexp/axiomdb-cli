@@ -67,7 +67,7 @@ pub fn print_banner() {
         &format!("  {} {}", orange("▸").bold(), "Prisma-ready connections"),
         &format!("  {} {}", orange("▸").bold(), "Real-time monitoring"),
         "",
-        &format!("  {}", "v0.1.0".truecolor(100, 100, 100)),
+        &format!("  {}", format!("v{}", env!("CARGO_PKG_VERSION")).truecolor(100, 100, 100)),
     ];
 
     for (i, logo_line) in logo.iter().enumerate() {

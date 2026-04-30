@@ -25,7 +25,7 @@ use commands::{
 #[derive(Parser)]
 #[command(
     name = "axiom",
-    version = "0.1.0",
+    version = env!("CARGO_PKG_VERSION"),
     author = "Square Exp <info@squareexp.com>",
     about = "\x1b[38;2;255;140;0m\x1b[1mAxiomDB CLI\x1b[0m — multi-branch Postgres database management",
     long_about = None,

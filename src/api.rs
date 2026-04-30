@@ -7,7 +7,7 @@ use crate::config;
 
 fn client() -> Client {
     Client::builder()
-        .user_agent("axiom-cli/0.1.0")
+        .user_agent(concat!("axiom-cli/", env!("CARGO_PKG_VERSION")))
         .timeout(std::time::Duration::from_secs(30))
         .build()
         .expect("HTTP client init failed")
