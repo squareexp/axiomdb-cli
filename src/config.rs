@@ -16,12 +16,13 @@ pub struct Config {
     #[serde(default = "default_base_url")]
     pub base_url: String,
     pub tokens: Option<Tokens>,
-    /// Currently selected project ID (set via `axiom projects use <id>`)
+    /// axiom will use this project id to perform all database operations unless
+    /// explicitly overridden by --project <project_id>
     pub current_project: Option<String>,
 }
 
 fn default_base_url() -> String {
-    "https://opsdcs.squareexp.com".to_string()
+    "https://opsdc.squareexp.com".to_string()
 }
 
 impl Default for Config {
@@ -99,10 +100,9 @@ pub fn resolve_project(arg: Option<&str>) -> Result<String> {
         return Ok(id.to_string());
     }
     let cfg = load();
-    cfg.current_project
-        .ok_or_else(|| anyhow::anyhow!(
-            "No project selected. Pass a project ID or run:\n  axiom projects use <id>"
-        ))
+    cfg.current_project.ok_or_else(|| {
+        anyhow::anyhow!("No project selected. Pass a project ID or run:\n  axiom projects use <id>")
+    })
 }
 
 pub fn require_token() -> Result<String> {
