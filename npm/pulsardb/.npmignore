@@ -1,0 +1,4 @@
+# Only ship what's in "files" — ignore everything else
+*.sh
+*.md
+node_modules/

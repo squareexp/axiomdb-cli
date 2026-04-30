@@ -1,0 +1,33 @@
+{
+  "name": "pulsardb/cli",
+  "version": "0.1.0",
+  "description": "PulsarDB CLI — multi-branch Postgres database management from your terminal",
+  "keywords": ["pulsardb", "database", "cli", "postgres", "devtools", "branches"],
+  "author": "Square Experience <info@squareexp.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/squareexp/pulsardb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/squareexp/pulsardb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/squareexp/pulsardb/issues"
+  },
+  "bin": {
+    "pulsardb": "./bin/pulsardb.js"
+  },
+  "files": [
+    "bin/pulsardb.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "optionalDependencies": {
+    "@pulsardb/cli-darwin-arm64": "0.1.0",
+    "@pulsardb/cli-darwin-x64":   "0.1.0",
+    "@pulsardb/cli-linux-x64":    "0.1.0",
+    "@pulsardb/cli-linux-arm64":  "0.1.0",
+    "@pulsardb/cli-win32-x64":    "0.1.0"
+  }
+}

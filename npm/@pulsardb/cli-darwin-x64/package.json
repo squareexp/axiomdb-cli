@@ -1,0 +1,15 @@
+{
+  "name": "@pulsardb/cli-darwin-x64",
+  "version": "0.1.0",
+  "description": "PulsarDB CLI binary for darwin x64",
+  "os": ["darwin"],
+  "cpu": ["x64"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/squareexp/pulsardb.git"
+  },
+  "files": [
+    "bin/pulsardb"
+  ]
+}
