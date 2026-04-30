@@ -7,7 +7,12 @@ use crate::{api, art, display};
 #[derive(Subcommand)]
 pub enum GenCmd {
     /// Generate Prisma-ready DB URLs for a project
-    Tk { project_id: String },
+    Tk {
+        project_id: String,
+        /// Optional branch id or branch name
+        #[arg(short, long)]
+        branch: Option<String>,
+    },
 }
 
 #[derive(Deserialize)]
@@ -15,7 +20,9 @@ struct Credentials {
     #[allow(dead_code)]
     project_id: String,
     database: String,
+    #[allow(dead_code)]
     runtime_key: String,
+    #[allow(dead_code)]
     direct_key: String,
     database_url: String,
     direct_url: String,
@@ -23,20 +30,24 @@ struct Credentials {
 
 pub async fn run(cmd: GenCmd) -> Result<()> {
     match cmd {
-        GenCmd::Tk { project_id } => tk(project_id).await,
+        GenCmd::Tk { project_id, branch } => tk(project_id, branch).await,
     }
 }
 
-async fn tk(project_id: String) -> Result<()> {
+async fn tk(project_id: String, branch: Option<String>) -> Result<()> {
     let sp = art::spinner("Resolving project DB URLs…");
-    let creds: Credentials = api::get(&format!("/projects/{project_id}/credentials")).await?;
+    let path = match branch.as_deref() {
+        Some(branch) => format!("/projects/{project_id}/branches/{branch}/credentials"),
+        None => format!("/projects/{project_id}/credentials"),
+    };
+    let creds: Credentials = api::get(&path).await?;
     sp.finish_and_clear();
     ensure_prisma_contract(&creds)?;
 
     display::header(&format!("Prisma URLs: {}", creds.database));
     display::kv(&[
-        (&creds.runtime_key, creds.database_url.clone()),
-        (&creds.direct_key, creds.direct_url.clone()),
+        ("DATABASE_URL", creds.database_url.clone()),
+        ("DIRECT_URL", creds.direct_url.clone()),
     ]);
     println!(
         "\nDATABASE_URL=\"{}\"\nDIRECT_URL=\"{}\"",
