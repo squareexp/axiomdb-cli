@@ -101,7 +101,7 @@ pub fn resolve_project(arg: Option<&str>) -> Result<String> {
     }
     let cfg = load();
     cfg.current_project.ok_or_else(|| {
-        anyhow::anyhow!("No project selected. Pass a project ID or run:\n  axiom projects use <id>")
+        anyhow::anyhow!("No project selected. Pass a project ID or run:\n  axm projects use <id>")
     })
 }
 
@@ -109,6 +109,6 @@ pub fn require_token() -> Result<String> {
     let cfg = load();
     match cfg.tokens {
         Some(t) if !t.access_token.is_empty() => Ok(t.access_token),
-        _ => bail!("Not logged in. Run: axiom login"),
+        _ => bail!("Not logged in. Run: axm login"),
     }
 }

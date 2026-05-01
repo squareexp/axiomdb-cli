@@ -7,7 +7,7 @@ use crate::{api, art, display};
 #[derive(Subcommand)]
 pub enum TablesCmd {
     /// List all tables in the project database
-    #[clap(alias = "ls")]
+    #[clap(visible_alias = "ls")]
     List { project_id: String },
 }
 
@@ -36,6 +36,9 @@ async fn list(project_id: String) -> Result<()> {
         return Ok(());
     }
 
-    display::table(&["Table name"], res.tables.iter().map(|t| vec![t.clone()]).collect());
+    display::table(
+        &["Table name"],
+        res.tables.iter().map(|t| vec![t.clone()]).collect(),
+    );
     Ok(())
 }

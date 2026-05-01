@@ -8,9 +8,10 @@ use crate::{api, art, display};
 #[derive(Subcommand)]
 pub enum BackupsCmd {
     /// Show backup catalog
-    #[clap(alias = "ls")]
+    #[clap(visible_alias = "ls")]
     List { project_id: String },
     /// Queue a restore job
+    #[clap(visible_alias = "re")]
     Restore {
         project_id: String,
         #[arg(short = 't', long)]
@@ -45,9 +46,11 @@ struct RestoreRequest {
 pub async fn run(cmd: BackupsCmd) -> Result<()> {
     match cmd {
         BackupsCmd::List { project_id } => list(project_id).await,
-        BackupsCmd::Restore { project_id, point_in_time, snapshot_id } => {
-            restore(project_id, point_in_time, snapshot_id).await
-        }
+        BackupsCmd::Restore {
+            project_id,
+            point_in_time,
+            snapshot_id,
+        } => restore(project_id, point_in_time, snapshot_id).await,
     }
 }
 
@@ -61,11 +64,18 @@ async fn list(project_id: String) -> Result<()> {
     Ok(())
 }
 
-async fn restore(project_id: String, point_in_time: Option<String>, snapshot_id: Option<String>) -> Result<()> {
+async fn restore(
+    project_id: String,
+    point_in_time: Option<String>,
+    snapshot_id: Option<String>,
+) -> Result<()> {
     let sp = art::spinner("Queuing restore job…");
     let res: RestoreResponse = api::post(
         &format!("/projects/{project_id}/backups/restore"),
-        &RestoreRequest { point_in_time, snapshot_id },
+        &RestoreRequest {
+            point_in_time,
+            snapshot_id,
+        },
     )
     .await?;
     sp.finish_and_clear();

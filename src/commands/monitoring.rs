@@ -9,8 +9,10 @@ use crate::{api, art, display};
 #[derive(Subcommand)]
 pub enum MonitoringCmd {
     /// Show current health metrics for a project
+    #[clap(visible_alias = "sum")]
     Summary { project_id: String },
     /// Stream live metrics (SSE — Ctrl+C to stop)
+    #[clap(visible_alias = "st")]
     Stream { project_id: String },
 }
 
@@ -41,7 +43,10 @@ async fn summary(project_id: String) -> Result<()> {
     display::kv(&[
         ("Database", s.database.clone()),
         ("CPU usage", format!("{:.1}%", s.cpu_percent)),
-        ("Memory used", format!("{} / {} MB", s.mem_used_mb, s.mem_total_mb)),
+        (
+            "Memory used",
+            format!("{} / {} MB", s.mem_used_mb, s.mem_total_mb),
+        ),
         ("PG active connections", s.pg_active_connections.to_string()),
         (
             "Smoke test",

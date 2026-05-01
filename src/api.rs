@@ -22,7 +22,9 @@ pub async fn request<T: DeserializeOwned>(
     let cfg = config::load();
     let url = format!("{}/api/v1{}", cfg.base_url.trim_end_matches('/'), path);
 
-    let mut req = client().request(method, &url).header("Content-Type", "application/json");
+    let mut req = client()
+        .request(method, &url)
+        .header("Content-Type", "application/json");
 
     if auth {
         let token = config::require_token()?;
@@ -33,7 +35,10 @@ pub async fn request<T: DeserializeOwned>(
         req = req.json(b);
     }
 
-    let res = req.send().await.with_context(|| format!("Failed to reach {url}"))?;
+    let res = req
+        .send()
+        .await
+        .with_context(|| format!("Failed to reach {url}"))?;
     let status = res.status();
     let text = res.text().await.unwrap_or_default();
 

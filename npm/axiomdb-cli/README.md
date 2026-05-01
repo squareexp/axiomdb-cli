@@ -24,13 +24,14 @@ npm install -g axiomdb-cli
 
 ## 🎮 How to Use It
 
-We kept the commands short and sweet. You can use `axiom` or just `axm` if you're lazy (valid).
+We kept the commands short and sweet. Use `axm` for the shortest path. The package also keeps the `axiom` binary for compatibility.
 
 ### The Basics
 ```bash
 axm login                      # Authenticate your session
 axm whoami                     # Check your vibe (who's logged in)
 axm projects list              # See all your database projects
+axm projects use <id>          # Set active project context
 axm branches list <id>         # Check your branches
 ```
 
@@ -38,7 +39,26 @@ axm branches list <id>         # Check your branches
 ```bash
 axm monitoring stream <id>     # Live telemetry streaming right in your terminal
 axm gen tk <id>                # Drops Prisma-ready URLs straight to your clipboard
+axm branches urls <branch-id>  # Prisma URLs for the active project branch
+axm branches urls --name feat  # Resolve branch by name in the active project
+axm gen tk --branch feat       # Alias path for branch Prisma URLs
 axm secrets generate           # Generates a fresh, secure crypto token
+```
+
+### Shortcuts
+
+```bash
+axm -li                        # login
+axm -pr -ls                    # projects list
+axm -br -url --name feat       # branches urls --name feat
+axm -g -tk --branch feat       # gen tk --branch feat
+```
+
+Branch URL output is always a copy-paste Prisma block:
+
+```env
+DATABASE_URL="postgresql://...@db.squareexp.com:6432/<branch-db>?sslmode=require"
+DIRECT_URL="postgresql://...@db.squareexp.com:5432/<branch-db>?sslmode=require"
 ```
 
 ### The Vibe Check (Illustration)

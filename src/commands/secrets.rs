@@ -7,6 +7,7 @@ use crate::{api, art, display};
 #[derive(Subcommand)]
 pub enum SecretsCmd {
     /// Generate a cryptographic secret
+    #[clap(visible_alias = "gen")]
     Generate {
         #[arg(short, long, default_value = "MY_SECRET")]
         label: String,
@@ -33,14 +34,25 @@ struct GenerateResponse {
 
 pub async fn run(cmd: SecretsCmd) -> Result<()> {
     match cmd {
-        SecretsCmd::Generate { label, format, bytes } => generate(label, format, bytes).await,
+        SecretsCmd::Generate {
+            label,
+            format,
+            bytes,
+        } => generate(label, format, bytes).await,
     }
 }
 
 async fn generate(label: String, format: String, bytes: u32) -> Result<()> {
     let sp = art::spinner("Generating…");
-    let res: GenerateResponse =
-        api::post("/secrets/generate", &GenerateRequest { label, format, bytes }).await?;
+    let res: GenerateResponse = api::post(
+        "/secrets/generate",
+        &GenerateRequest {
+            label,
+            format,
+            bytes,
+        },
+    )
+    .await?;
     sp.finish_and_clear();
 
     display::header("Generated secret");

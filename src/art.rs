@@ -26,15 +26,15 @@ pub fn orange_dim(s: &str) -> colored::ColoredString {
 pub fn logo_lines() -> Vec<String> {
     // Each tuple: (line text, r, g, b)
     let rows: &[(&str, u8, u8, u8)] = &[
-        ("        ....        ", 255, 195,  60),
-        ("      ........      ", 255, 175,  40),
-        ("     ..........     ", 255, 160,  20),
-        ("    ............    ", 255, 140,   0),
-        ("   ..............   ", 245, 130,   0),
-        ("    ............    ", 235, 115,   0),
-        ("     ..........     ", 220, 100,   0),
-        ("      ........      ", 200,  85,   0),
-        ("        ....        ", 180,  70,   0),
+        ("        ....        ", 255, 195, 60),
+        ("      ........      ", 255, 175, 40),
+        ("     ..........     ", 255, 160, 20),
+        ("    ............    ", 255, 140, 0),
+        ("   ..............   ", 245, 130, 0),
+        ("    ............    ", 235, 115, 0),
+        ("     ..........     ", 220, 100, 0),
+        ("      ........      ", 200, 85, 0),
+        ("        ....        ", 180, 70, 0),
     ];
     rows.iter()
         .map(|(line, r, g, b)| {
@@ -67,7 +67,10 @@ pub fn print_banner() {
         &format!("  {} {}", orange("▸").bold(), "Prisma-ready connections"),
         &format!("  {} {}", orange("▸").bold(), "Real-time monitoring"),
         "",
-        &format!("  {}", format!("v{}", env!("CARGO_PKG_VERSION")).truecolor(100, 100, 100)),
+        &format!(
+            "  {}",
+            format!("v{}", env!("CARGO_PKG_VERSION")).truecolor(100, 100, 100)
+        ),
     ];
 
     for (i, logo_line) in logo.iter().enumerate() {
@@ -75,10 +78,7 @@ pub fn print_banner() {
         println!("  {}    {}", logo_line, word);
     }
     println!();
-    println!(
-        "  {}",
-        "─".repeat(50).truecolor(80, 80, 80)
-    );
+    println!("  {}", "─".repeat(50).truecolor(80, 80, 80));
     println!();
 }
 
@@ -92,10 +92,7 @@ pub fn print_welcome() {
         "Run the following to get started:".white()
     );
     println!();
-    println!(
-        "    {}",
-        "axiom login".truecolor(255, 140, 0).bold()
-    );
+    println!("    {}", "axm login".truecolor(255, 140, 0).bold());
     println!();
 }
 
@@ -152,36 +149,21 @@ pub fn pulse_spinner(msg: &str) -> ProgressBar {
 
 pub fn step(n: usize, total: usize, msg: &str) {
     let badge = format!("[{n}/{total}]");
-    println!(
-        "  {}  {}",
-        badge.truecolor(255, 140, 0).bold(),
-        msg.white()
-    );
+    println!("  {}  {}", badge.truecolor(255, 140, 0).bold(), msg.white());
 }
 
 pub fn step_ok(msg: &str) {
-    println!(
-        "  {}  {}",
-        "✔".truecolor(255, 140, 0).bold(),
-        msg.white()
-    );
+    println!("  {}  {}", "✔".truecolor(255, 140, 0).bold(), msg.white());
 }
 
 pub fn step_err(msg: &str) {
-    println!(
-        "  {}  {}",
-        "✖".truecolor(220, 60, 60).bold(),
-        msg.white()
-    );
+    println!("  {}  {}", "✖".truecolor(220, 60, 60).bold(), msg.white());
 }
 
 // ── Section divider ──────────────────────────────────────────────────────────
 
 pub fn divider() {
-    println!(
-        "  {}",
-        "─".repeat(50).truecolor(60, 60, 60)
-    );
+    println!("  {}", "─".repeat(50).truecolor(60, 60, 60));
 }
 
 pub fn section(title: &str) {
@@ -191,8 +173,5 @@ pub fn section(title: &str) {
         orange("◆").bold(),
         title.truecolor(230, 230, 230).bold()
     );
-    println!(
-        "  {}",
-        "─".repeat(title.len() + 4).truecolor(80, 50, 0)
-    );
+    println!("  {}", "─".repeat(title.len() + 4).truecolor(80, 50, 0));
 }

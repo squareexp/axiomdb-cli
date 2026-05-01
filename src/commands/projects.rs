@@ -8,15 +8,20 @@ use crate::{api, art, config, display};
 #[derive(Subcommand)]
 pub enum ProjectsCmd {
     /// List all projects
-    #[clap(alias = "ls", short_flag = 'l')]
+    #[clap(visible_alias = "ls", short_flag = 'l')]
     List,
     /// Create a new project (provisions a real DB on the VPS)
+    #[clap(visible_alias = "cr")]
     Create {
-        #[arg(short, long)] name: Option<String>,
-        #[arg(short = 'k', long)] app_key: Option<String>,
-        #[arg(short, long)] env: Option<String>,
+        #[arg(short, long)]
+        name: Option<String>,
+        #[arg(short = 'k', long)]
+        app_key: Option<String>,
+        #[arg(short, long)]
+        env: Option<String>,
     },
     /// Show details for a project
+    #[clap(visible_alias = "show")]
     Get {
         /// Project ID (omit to use current context)
         project_id: Option<String>,
@@ -93,12 +98,12 @@ struct CreateProjectRequest {
 
 pub async fn run(cmd: ProjectsCmd) -> Result<()> {
     match cmd {
-        ProjectsCmd::List                     => list().await,
+        ProjectsCmd::List => list().await,
         ProjectsCmd::Create { name, app_key, env } => create(name, app_key, env).await,
-        ProjectsCmd::Get    { project_id }    => get(project_id).await,
-        ProjectsCmd::Use    { project_id }    => use_project(project_id),
-        ProjectsCmd::Current                  => current_project(),
-        ProjectsCmd::Unset                    => unset_project(),
+        ProjectsCmd::Get { project_id } => get(project_id).await,
+        ProjectsCmd::Use { project_id } => use_project(project_id),
+        ProjectsCmd::Current => current_project(),
+        ProjectsCmd::Unset => unset_project(),
     }
 }
 
@@ -114,7 +119,7 @@ async fn list() -> Result<()> {
     display::header(&format!("Projects ({})", res.projects.len()));
 
     if res.projects.is_empty() {
-        println!("  No projects yet. Run: axiom projects create");
+        println!("  No projects yet. Run: axm projects create");
         return Ok(());
     }
 
@@ -125,7 +130,11 @@ async fn list() -> Result<()> {
             .map(|p| {
                 let active = current.as_deref() == Some(p.id.as_str());
                 vec![
-                    if active { "▶".to_string() } else { " ".to_string() },
+                    if active {
+                        "▶".to_string()
+                    } else {
+                        " ".to_string()
+                    },
                     p.name.clone(),
                     p.app_key.clone(),
                     p.env.clone(),
@@ -137,11 +146,16 @@ async fn list() -> Result<()> {
     );
 
     if let Some(id) = &current {
-        println!("  {} active project: {}", "▶".truecolor_str(255, 140, 0), id);
+        println!(
+            "  {} active project: {}",
+            "▶".truecolor_str(255, 140, 0),
+            id
+        );
     } else {
-        println!("  {} Run {} to set a project context.",
+        println!(
+            "  {} Run {} to set a project context.",
             "tip:".truecolor_str(100, 100, 100),
-            "axiom projects use <id>".truecolor_str(255, 140, 0)
+            "axm projects use <id>".truecolor_str(255, 140, 0)
         );
     }
     Ok(())
@@ -155,7 +169,11 @@ async fn create(name: Option<String>, app_key: Option<String>, env: Option<Strin
         None => Input::new()
             .with_prompt("Project display name")
             .validate_with(|v: &String| {
-                if v.trim().is_empty() { Err("Required") } else { Ok(()) }
+                if v.trim().is_empty() {
+                    Err("Required")
+                } else {
+                    Ok(())
+                }
             })
             .interact_text()?,
     };
@@ -167,7 +185,9 @@ async fn create(name: Option<String>, app_key: Option<String>, env: Option<Strin
             .with_prompt("App key (slug)")
             .default(default_key)
             .validate_with(|v: &String| {
-                if v.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_') {
+                if v.chars()
+                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+                {
                     Ok(())
                 } else {
                     Err("Lowercase letters, digits, underscores only")
@@ -196,7 +216,9 @@ async fn create(name: Option<String>, app_key: Option<String>, env: Option<Strin
         ))
         .default(true)
         .interact()?;
-    if !confirm { return Ok(()); }
+    if !confirm {
+        return Ok(());
+    }
 
     let sp = art::pulse_spinner("Provisioning database on VPS… this may take a moment");
     let res: CreateProjectResponse =
@@ -208,12 +230,12 @@ async fn create(name: Option<String>, app_key: Option<String>, env: Option<Strin
 
     display::header("Project created");
     display::kv(&[
-        ("Project ID",       res.project.id.clone()),
-        ("Slug",             res.project.slug.clone()),
-        ("Name",             res.project.name.clone()),
-        ("Database",         res.database.database_name.clone()),
-        ("Runtime key",      res.database.runtime_key.clone()),
-        ("Direct key",       res.database.direct_key.clone()),
+        ("Project ID", res.project.id.clone()),
+        ("Slug", res.project.slug.clone()),
+        ("Name", res.project.name.clone()),
+        ("Database", res.database.database_name.clone()),
+        ("Runtime key", res.database.runtime_key.clone()),
+        ("Direct key", res.database.direct_key.clone()),
     ]);
     art::step_ok(&format!(
         "Project set as active context  ({})",
@@ -232,11 +254,11 @@ async fn get(project_id: Option<String>) -> Result<()> {
 
     display::header(&format!("Project: {}", res.project.name));
     display::kv(&[
-        ("ID",          res.project.id.clone()),
-        ("App key",     res.project.app_key.clone()),
+        ("ID", res.project.id.clone()),
+        ("App key", res.project.app_key.clone()),
         ("Environment", res.project.env.clone()),
-        ("Status",      display::status_color(&res.project.status)),
-        ("Created",     res.project.created_at[..19].to_string()),
+        ("Status", display::status_color(&res.project.status)),
+        ("Created", res.project.created_at[..19].to_string()),
     ]);
 
     if !res.databases.is_empty() {
@@ -245,7 +267,13 @@ async fn get(project_id: Option<String>) -> Result<()> {
             &["Database", "Runtime key", "Direct key"],
             res.databases
                 .iter()
-                .map(|d| vec![d.database_name.clone(), d.runtime_key.clone(), d.direct_key.clone()])
+                .map(|d| {
+                    vec![
+                        d.database_name.clone(),
+                        d.runtime_key.clone(),
+                        d.direct_key.clone(),
+                    ]
+                })
                 .collect(),
         );
     }
@@ -270,7 +298,7 @@ fn current_project() -> Result<()> {
             println!();
         }
         None => {
-            display::info("No active project. Run: axiom projects use <id>");
+            display::info("No active project. Run: axm projects use <id>");
         }
     }
     Ok(())

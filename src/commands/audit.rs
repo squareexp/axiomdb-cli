@@ -8,7 +8,7 @@ use crate::{api, art, display};
 #[derive(Subcommand)]
 pub enum AuditCmd {
     /// List recent audit events
-    #[clap(alias = "ls")]
+    #[clap(visible_alias = "ls")]
     List {
         #[arg(short, long, default_value_t = 50)]
         limit: u32,
@@ -68,6 +68,7 @@ async fn list(limit: u32) -> Result<()> {
 #[derive(Subcommand)]
 pub enum JobsCmd {
     /// Show status and output of a job
+    #[clap(visible_alias = "show")]
     Get { job_id: String },
 }
 

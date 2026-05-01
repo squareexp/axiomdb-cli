@@ -8,11 +8,12 @@ use crate::{art, config, display};
 
 // Re-export spinner so other commands can import from here if needed
 #[allow(unused_imports)]
-pub use crate::art::{spinner, pulse_spinner};
+pub use crate::art::{pulse_spinner, spinner};
 
 #[derive(Subcommand)]
 pub enum AuthCmd {
     /// Log in to a AxiomDB server
+    #[clap(visible_alias = "li")]
     Login {
         #[arg(short, long, help = "Server base URL")]
         url: Option<String>,
@@ -22,10 +23,13 @@ pub enum AuthCmd {
         password: Option<String>,
     },
     /// Clear local session tokens
+    #[clap(visible_alias = "lo")]
     Logout,
     /// Show current logged-in identity
+    #[clap(visible_alias = "me")]
     Whoami,
     /// Set the server URL
+    #[clap(visible_alias = "server")]
     Use { url: String },
 }
 
@@ -51,7 +55,11 @@ struct LoginRequest<'a> {
 
 pub async fn run(cmd: AuthCmd) -> Result<()> {
     match cmd {
-        AuthCmd::Login { url, email, password } => do_login(url, email, password).await,
+        AuthCmd::Login {
+            url,
+            email,
+            password,
+        } => do_login(url, email, password).await,
         AuthCmd::Logout => do_logout(),
         AuthCmd::Whoami => do_whoami(),
         AuthCmd::Use { url } => {
@@ -64,7 +72,11 @@ pub async fn run(cmd: AuthCmd) -> Result<()> {
 
 // ── Called by both auth sub-command and root-level shortcuts ─────────────────
 
-pub async fn do_login(url: Option<String>, email: Option<String>, password: Option<String>) -> Result<()> {
+pub async fn do_login(
+    url: Option<String>,
+    email: Option<String>,
+    password: Option<String>,
+) -> Result<()> {
     // Show welcome art on interactive login
     art::print_banner();
 
@@ -91,7 +103,10 @@ pub async fn do_login(url: Option<String>, email: Option<String>, password: Opti
     let sp = art::spinner("Authenticating…");
     let res: LoginResponse = crate::api::post_no_auth(
         "/auth/login",
-        &LoginRequest { email: &email, password: &password },
+        &LoginRequest {
+            email: &email,
+            password: &password,
+        },
     )
     .await?;
     sp.finish_and_clear();
@@ -125,14 +140,14 @@ pub fn do_whoami() -> Result<()> {
     let cfg = config::load();
     match cfg.tokens {
         None => {
-            display::err("Not logged in. Run: axiom login");
+            display::err("Not logged in. Run: axm login");
             std::process::exit(1);
         }
         Some(t) => {
             art::section("Current session");
             display::kv(&[
-                ("Email",  t.email),
-                ("Role",   t.role),
+                ("Email", t.email),
+                ("Role", t.role),
                 ("Server", cfg.base_url),
             ]);
             println!();

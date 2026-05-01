@@ -1,31 +1,19 @@
-use anyhow::{bail, Result};
+use anyhow::Result;
 use clap::Subcommand;
-use serde::Deserialize;
 
-use crate::{api, art, display};
+use crate::{api, art, config, credentials, display};
 
 #[derive(Subcommand)]
 pub enum GenCmd {
     /// Generate Prisma-ready DB URLs for a project
+    #[clap(visible_alias = "token")]
     Tk {
-        project_id: String,
+        /// Project ID (omit to use active project context)
+        project_id: Option<String>,
         /// Optional branch id or branch name
         #[arg(short, long)]
         branch: Option<String>,
     },
-}
-
-#[derive(Deserialize)]
-struct Credentials {
-    #[allow(dead_code)]
-    project_id: String,
-    database: String,
-    #[allow(dead_code)]
-    runtime_key: String,
-    #[allow(dead_code)]
-    direct_key: String,
-    database_url: String,
-    direct_url: String,
 }
 
 pub async fn run(cmd: GenCmd) -> Result<()> {
@@ -34,42 +22,71 @@ pub async fn run(cmd: GenCmd) -> Result<()> {
     }
 }
 
-async fn tk(project_id: String, branch: Option<String>) -> Result<()> {
+async fn tk(project_id: Option<String>, branch: Option<String>) -> Result<()> {
+    let project_id = config::resolve_project(project_id.as_deref())?;
     let sp = art::spinner("Resolving project DB URLs…");
-    let path = match branch.as_deref() {
+    let path = credentials_path(&project_id, branch.as_deref());
+    let creds: credentials::Credentials = api::get(&path).await?;
+    sp.finish_and_clear();
+    credentials::ensure_prisma_contract(&creds)?;
+
+    print_credentials(&creds);
+    display::ok("Copy the block above into Prisma .env; DIRECT_URL is for migrations.");
+    Ok(())
+}
+
+pub(crate) fn credentials_path(project_id: &str, branch: Option<&str>) -> String {
+    match branch {
         Some(branch) => format!("/projects/{project_id}/branches/{branch}/credentials"),
         None => format!("/projects/{project_id}/credentials"),
-    };
-    let creds: Credentials = api::get(&path).await?;
-    sp.finish_and_clear();
-    ensure_prisma_contract(&creds)?;
+    }
+}
 
-    display::header(&format!("Prisma URLs: {}", creds.database));
+pub(crate) fn print_credentials(creds: &credentials::Credentials) {
+    let title = match creds.branch_name.as_deref() {
+        Some(branch_name) => format!("Prisma URLs: {branch_name} -> {}", creds.database),
+        None => format!("Prisma URLs: {}", creds.database),
+    };
+    display::header(&title);
+
+    if let Some(branch_id) = &creds.branch_id {
+        display::kv(&[
+            (
+                "Branch",
+                creds
+                    .branch_name
+                    .clone()
+                    .unwrap_or_else(|| "selected".to_string()),
+            ),
+            ("Branch ID", branch_id.clone()),
+            ("Database", creds.database.clone()),
+        ]);
+        println!();
+    }
+
     display::kv(&[
         ("DATABASE_URL", creds.database_url.clone()),
         ("DIRECT_URL", creds.direct_url.clone()),
     ]);
     println!(
-        "\nDATABASE_URL=\"{}\"\nDIRECT_URL=\"{}\"",
-        creds.database_url, creds.direct_url
+        "\n{}",
+        credentials::format_prisma_env_block(&creds.database_url, &creds.direct_url)
     );
-    display::ok("Copy the block above into Prisma .env; DIRECT_URL is for migrations.");
-    Ok(())
 }
 
-fn ensure_prisma_contract(creds: &Credentials) -> Result<()> {
-    ensure_url(&creds.database_url, "DATABASE_URL", 6432)?;
-    ensure_url(&creds.direct_url, "DIRECT_URL", 5432)?;
-    Ok(())
-}
+#[cfg(test)]
+mod tests {
+    use super::credentials_path;
 
-fn ensure_url(url: &str, label: &str, port: u16) -> Result<()> {
-    let host_port = format!("@db.squareexp.com:{port}/");
-    let has_sslmode = url.contains("?sslmode=require") || url.contains("&sslmode=require");
-    if !url.starts_with("postgresql://") || !url.contains(&host_port) || !has_sslmode {
-        bail!(
-            "{label} from gateway is not Prisma-ready; expected db.squareexp.com:{port} with sslmode=require"
+    #[test]
+    fn builds_project_and_branch_credential_paths() {
+        assert_eq!(
+            credentials_path("project-1", None),
+            "/projects/project-1/credentials"
+        );
+        assert_eq!(
+            credentials_path("project-1", Some("feature-proof")),
+            "/projects/project-1/branches/feature-proof/credentials"
         );
     }
-    Ok(())
 }
