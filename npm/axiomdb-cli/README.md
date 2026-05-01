@@ -1,10 +1,10 @@
-# 🌌 AxiomDB CLI (`axiomdb-cli`)
+# AxiomDB CLI (`axiomdb-cli`)
 
 *The terminal tool you didn't know you needed, but now can't live without.*
 
 Traditional database management UIs are clunky and highkey mid. The **AxiomDB CLI** is here to give you total control over your multi-branch Postgres databases right from your terminal. It's fast, aesthetic, and fits perfectly into your developer workflow. 
 
-## ⚡️ Why it Matters
+##  Why it Matters
 
 Clicking through dashboards is an L when you're in the zone. We built this CLI so you can spin up databases, branch your schema, and pull Prisma URLs without ever leaving your terminal. It's giving main character energy for your DevOps.
 
@@ -14,7 +14,7 @@ Clicking through dashboards is an L when you're in the zone. We built this CLI s
 | Sharing a broken dev database | `axm branches create feat-auth` |
 | Wondering if your DB is down | `axm monitoring stream <project-id>` |
 
-## 📦 Installation
+##  Installation
 
 Grab the package straight from NPM. It's globally available and installs in seconds.
 
@@ -72,10 +72,10 @@ DIRECT_URL="postgresql://...@db.squareexp.com:5432/<branch-db>?sslmode=require"
       ●●●●●●●●●●●●          ▸ Prisma-ready connections
        ●●●●●●●●●●           ▸ Real-time monitoring
         ●●●●●●●●          
-          ●●●●              v0.1.0
+          ●●●●              v0.1.5
 ```
 
-## 🐛 Something broke? 
+##  Something broke?
 
 If the CLI throws an error or acts out of pocket, we need to know.
 1. Run your command again with the `--verbose` flag (if applicable) to catch the receipts.

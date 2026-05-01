@@ -72,7 +72,7 @@ DIRECT_URL="postgresql://...@db.squareexp.com:5432/<branch-db>?sslmode=require"
       ●●●●●●●●●●●●          ▸ Prisma-ready connections
        ●●●●●●●●●●           ▸ Real-time monitoring
         ●●●●●●●●          
-          ●●●●              v0.1.0
+          ●●●●              v0.1.5
 ```
 
 ## 🐛 Something broke? 

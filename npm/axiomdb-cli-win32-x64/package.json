@@ -1,6 +1,6 @@
 {
   "name": "axiomdb-cli-win32-x64",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "description": "AxiomDB CLI binary for win32 x64",
   "os": [
     "win32"
