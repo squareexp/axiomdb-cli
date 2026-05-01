@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 use clap::Subcommand;
-use dialoguer::{Confirm, Input};
+use dialoguer::{Confirm, Input, Select};
 use serde::{Deserialize, Serialize};
 
 use crate::{api, art, commands::gen, config, credentials, display};
@@ -20,6 +20,12 @@ pub enum BranchesCmd {
         project_id: Option<String>,
         #[arg(short, long)]
         name: Option<String>,
+        /// Source branch ID (defaults to main)
+        #[arg(long)]
+        source: Option<String>,
+        /// Branch lifespan: 7d, 1m, 6m, 1y, forever
+        #[arg(short = 'f', long)]
+        lifespan: Option<String>,
     },
     /// Delete a branch
     #[clap(visible_alias = "rm")]
@@ -50,6 +56,10 @@ struct Branch {
     branch_name: String,
     database_name: String,
     status: String,
+    lifespan: Option<String>,
+    expires_at: Option<String>,
+    protected: Option<bool>,
+    is_default: Option<bool>,
     created_at: String,
 }
 
@@ -61,6 +71,10 @@ struct BranchListResponse {
 #[derive(Serialize)]
 struct CreateBranchRequest {
     branch_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    source_branch_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    lifespan: Option<String>,
 }
 
 pub async fn run(cmd: BranchesCmd) -> Result<()> {
@@ -68,8 +82,19 @@ pub async fn run(cmd: BranchesCmd) -> Result<()> {
         BranchesCmd::List { project_id } => {
             list(config::resolve_project(project_id.as_deref())?).await
         }
-        BranchesCmd::Create { project_id, name } => {
-            create(config::resolve_project(project_id.as_deref())?, name).await
+        BranchesCmd::Create {
+            project_id,
+            name,
+            source,
+            lifespan,
+        } => {
+            create(
+                config::resolve_project(project_id.as_deref())?,
+                name,
+                source,
+                lifespan,
+            )
+            .await
         }
         BranchesCmd::Delete {
             project_id,
@@ -103,15 +128,19 @@ async fn list(project_id: String) -> Result<()> {
     }
 
     display::table(
-        &["Name", "Database", "Status", "Created"],
+        &["Name", "Database", "Status", "Lifespan", "Expires"],
         res.branches
             .iter()
             .map(|b| {
                 vec![
-                    b.branch_name.clone(),
+                    branch_label(b),
                     b.database_name.clone(),
                     display::status_color(&b.status),
-                    b.created_at[..10].to_string(),
+                    b.lifespan.clone().unwrap_or_else(|| "forever".into()),
+                    b.expires_at
+                        .as_deref()
+                        .map(|value| value[..10.min(value.len())].to_string())
+                        .unwrap_or_else(|| "never".into()),
                 ]
             })
             .collect(),
@@ -119,7 +148,13 @@ async fn list(project_id: String) -> Result<()> {
     Ok(())
 }
 
-async fn create(project_id: String, name: Option<String>) -> Result<()> {
+async fn create(
+    project_id: String,
+    name: Option<String>,
+    source: Option<String>,
+    lifespan: Option<String>,
+) -> Result<()> {
+    let interactive = name.is_none();
     let branch_name: String = match name {
         Some(n) => n,
         None => Input::new()
@@ -136,17 +171,37 @@ async fn create(project_id: String, name: Option<String>) -> Result<()> {
             .interact_text()?,
     };
 
+    let lifespan = match lifespan {
+        Some(value) => Some(normalize_lifespan(&value)?),
+        None if !interactive => Some("7d".to_string()),
+        None => {
+            let options = ["7d", "1m", "6m", "1y", "forever"];
+            let i = Select::new()
+                .with_prompt("Branch lifespan")
+                .items(&["7 days", "1 month", "6 months", "1 year", "forever"])
+                .default(0)
+                .interact()?;
+            Some(options[i].to_string())
+        }
+    };
+
     let sp = art::spinner(&format!("Creating branch \"{branch_name}\"…"));
     let branch: Branch = api::post(
         &format!("/projects/{project_id}/branches"),
-        &CreateBranchRequest { branch_name },
+        &CreateBranchRequest {
+            branch_name,
+            source_branch_id: source,
+            lifespan,
+        },
     )
     .await?;
     sp.finish_and_clear();
 
     display::ok(&format!(
-        "Branch \"{}\" → {}",
-        branch.branch_name, branch.database_name
+        "Branch \"{}\" → {} ({})",
+        branch.branch_name,
+        branch.database_name,
+        branch.lifespan.unwrap_or_else(|| "forever".into())
     ));
     Ok(())
 }
@@ -195,9 +250,30 @@ pub(crate) fn branch_ref(branch_id: Option<&str>, name: Option<&str>) -> Result<
     }
 }
 
+fn branch_label(branch: &Branch) -> String {
+    if branch.is_default.unwrap_or(false) {
+        format!("{} (main)", branch.branch_name)
+    } else if branch.protected.unwrap_or(false) {
+        format!("{} (protected)", branch.branch_name)
+    } else {
+        branch.branch_name.clone()
+    }
+}
+
+pub(crate) fn normalize_lifespan(value: &str) -> Result<String> {
+    match value.trim().to_lowercase().as_str() {
+        "7d" | "7days" | "7 days" => Ok("7d".into()),
+        "1m" | "1month" | "1 month" => Ok("1m".into()),
+        "6m" | "6months" | "6 months" => Ok("6m".into()),
+        "1y" | "1year" | "1 year" => Ok("1y".into()),
+        "forever" | "permanent" => Ok("forever".into()),
+        _ => bail!("lifespan must be one of 7d, 1m, 6m, 1y, forever"),
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::branch_ref;
+    use super::{branch_ref, normalize_lifespan};
 
     #[test]
     fn resolves_branch_id_or_name() {
@@ -215,5 +291,13 @@ mod tests {
     fn rejects_missing_or_ambiguous_branch_refs() {
         assert!(branch_ref(None, None).is_err());
         assert!(branch_ref(Some("branch-id"), Some("feature-proof")).is_err());
+    }
+
+    #[test]
+    fn normalizes_lifespan_flags() {
+        assert_eq!(normalize_lifespan("7 days").unwrap(), "7d");
+        assert_eq!(normalize_lifespan("1month").unwrap(), "1m");
+        assert_eq!(normalize_lifespan("permanent").unwrap(), "forever");
+        assert!(normalize_lifespan("3d").is_err());
     }
 }
