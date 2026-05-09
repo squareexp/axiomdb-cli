@@ -1,6 +1,6 @@
 {
   "name": "axiomdb-cli-linux-x64",
-  "version": "0.1.5",
+  "version": "0.1.10",
   "description": "AxiomDB CLI binary for linux x64",
   "os": [
     "linux"

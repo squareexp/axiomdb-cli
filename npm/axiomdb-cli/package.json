@@ -1,6 +1,6 @@
 {
   "name": "axiomdb-cli",
-  "version": "0.1.5",
+  "version": "0.1.10",
   "description": "AxiomDB CLI — multi-branch Postgres database management from your terminal",
   "keywords": [
     "axiom",
@@ -32,10 +32,9 @@
     "node": ">=16.0.0"
   },
   "optionalDependencies": {
-    "axiomdb-cli-darwin-arm64": "0.1.5",
-    "axiomdb-cli-darwin-x64": "0.1.5",
-    "axiomdb-cli-linux-x64": "0.1.5",
-    "axiomdb-cli-linux-arm64": "0.1.5",
-    "axiomdb-cli-win32-x64": "0.1.5"
+    "axiomdb-cli-darwin-arm64": "0.1.10",
+    "axiomdb-cli-darwin-x64": "0.1.10",
+    "axiomdb-cli-linux-x64": "0.1.10",
+    "axiomdb-cli-linux-arm64": "0.1.10"
   }
 }

@@ -3,7 +3,7 @@ use clap::Subcommand;
 use dialoguer::{Confirm, Input, Select};
 use serde::{Deserialize, Serialize};
 
-use crate::{api, art, config, display};
+use crate::{api, art, config, display, utils::resource};
 
 #[derive(Subcommand)]
 pub enum ProjectsCmd {
@@ -27,7 +27,7 @@ pub enum ProjectsCmd {
         project_id: Option<String>,
     },
     /// Set the active project context (saves to ~/.config/axiom/config.json)
-    Use { project_id: String },
+    Use { project_ref: String },
     /// Show the currently selected project
     Current,
     /// Clear the active project context
@@ -61,11 +61,13 @@ struct ProjectDatabase {
 #[derive(Deserialize)]
 #[allow(dead_code)]
 struct ProjectOut {
-    id: String,
-    slug: String,
+    id: Option<String>,
+    slug: Option<String>,
     name: String,
     app_key: String,
     env: String,
+    #[serde(default)]
+    status: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -78,7 +80,15 @@ struct DatabaseOut {
 #[derive(Deserialize)]
 struct CreateProjectResponse {
     project: ProjectOut,
-    database: DatabaseOut,
+    database: Option<DatabaseOut>,
+    #[serde(default)]
+    job: Option<JobOut>,
+}
+
+#[derive(Deserialize)]
+struct JobOut {
+    id: String,
+    status: String,
 }
 
 #[derive(Deserialize)]
@@ -101,7 +111,7 @@ pub async fn run(cmd: ProjectsCmd) -> Result<()> {
         ProjectsCmd::List => list().await,
         ProjectsCmd::Create { name, app_key, env } => create(name, app_key, env).await,
         ProjectsCmd::Get { project_id } => get(project_id).await,
-        ProjectsCmd::Use { project_id } => use_project(project_id),
+        ProjectsCmd::Use { project_ref } => use_project(project_ref).await,
         ProjectsCmd::Current => current_project(),
         ProjectsCmd::Unset => unset_project(),
     }
@@ -225,29 +235,49 @@ async fn create(name: Option<String>, app_key: Option<String>, env: Option<Strin
         api::post("/projects", &CreateProjectRequest { name, app_key, env }).await?;
     sp.finish_and_clear();
 
-    // Auto-set as current project
-    config::set_current_project(&res.project.id)?;
-
-    display::header("Project created");
-    display::kv(&[
-        ("Project ID", res.project.id.clone()),
-        ("Slug", res.project.slug.clone()),
+    display::header("Project accepted");
+    let mut pairs = vec![
         ("Name", res.project.name.clone()),
-        ("Database", res.database.database_name.clone()),
-        ("Runtime key", res.database.runtime_key.clone()),
-        ("Direct key", res.database.direct_key.clone()),
-    ]);
-    art::step_ok(&format!(
-        "Project set as active context  ({})",
-        res.project.id.truecolor_str(150, 150, 150)
-    ));
+        ("App key", res.project.app_key.clone()),
+        ("Environment", res.project.env.clone()),
+    ];
+    if let Some(id) = &res.project.id {
+        config::set_current_project(id)?;
+        pairs.push(("Project ID", id.clone()));
+    }
+    if let Some(slug) = &res.project.slug {
+        pairs.push(("Slug", slug.clone()));
+    }
+    if let Some(status) = &res.project.status {
+        pairs.push(("Status", status.clone()));
+    }
+    if let Some(database) = &res.database {
+        pairs.push(("Database", database.database_name.clone()));
+        pairs.push(("Runtime key", database.runtime_key.clone()));
+        pairs.push(("Direct key", database.direct_key.clone()));
+    }
+    if let Some(job) = &res.job {
+        pairs.push(("Job", format!("{} ({})", job.id, job.status)));
+    }
+    display::kv(&pairs);
+    if let Some(id) = &res.project.id {
+        art::step_ok(&format!(
+            "Project set as active context  ({})",
+            id.truecolor_str(150, 150, 150)
+        ));
+    } else if let Some(job) = &res.job {
+        display::info(&format!(
+            "Provisioning is running. Check it with: axm jobs get {}",
+            job.id
+        ));
+    }
     Ok(())
 }
 
 // ── get ───────────────────────────────────────────────────────────────────────
 
 async fn get(project_id: Option<String>) -> Result<()> {
-    let id = config::resolve_project(project_id.as_deref())?;
+    let id = resource::resolve_project(project_id.as_deref()).await?;
     let sp = art::spinner("Loading project…");
     let res: ProjectDetailResponse = api::get(&format!("/projects/{id}")).await?;
     sp.finish_and_clear();
@@ -282,7 +312,8 @@ async fn get(project_id: Option<String>) -> Result<()> {
 
 // ── use / current / unset ─────────────────────────────────────────────────────
 
-fn use_project(project_id: String) -> Result<()> {
+async fn use_project(project_ref: String) -> Result<()> {
+    let project_id = resource::resolve_project(Some(&project_ref)).await?;
     config::set_current_project(&project_id)?;
     display::ok(&format!("Active project set to {project_id}"));
     println!("  You can now omit the project ID in all commands.");

@@ -1,83 +1,102 @@
-# 🌌 AxiomDB CLI (`axiomdb-cli`)
+# AxiomDB CLI
 
-*The terminal tool you didn't know you needed, but now can't live without.*
+Fast terminal control for AxiomDB projects, branches, Prisma URLs, network access, metrics, backups, audit, and secrets.
 
-Traditional database management UIs are clunky and highkey mid. The **AxiomDB CLI** is here to give you total control over your multi-branch Postgres databases right from your terminal. It's fast, aesthetic, and fits perfectly into your developer workflow. 
-
-## ⚡️ Why it Matters
-
-Clicking through dashboards is an L when you're in the zone. We built this CLI so you can spin up databases, branch your schema, and pull Prisma URLs without ever leaving your terminal. It's giving main character energy for your DevOps.
-
-| The Old Way (L) | The Axiom Way (W) |
-| :--- | :--- |
-| Going to a website to grab a connection string | `axm gen tk <project-id>` |
-| Sharing a broken dev database | `axm branches create feat-auth` |
-| Wondering if your DB is down | `axm monitoring stream <project-id>` |
-
-## 📦 Installation
-
-Grab the package straight from NPM. It's globally available and installs in seconds.
+## Install
 
 ```bash
 npm install -g axiomdb-cli
 ```
 
-## 🎮 How to Use It
+The npm package exposes `axm` for speed and keeps `axiom` for compatibility.
 
-We kept the commands short and sweet. Use `axm` for the shortest path. The package also keeps the `axiom` binary for compatibility.
-
-### The Basics
-```bash
-axm login                      # Authenticate your session
-axm whoami                     # Check your vibe (who's logged in)
-axm projects list              # See all your database projects
-axm projects use <id>          # Set active project context
-axm branches list <id>         # Check your branches
-```
-
-### The Based Features
-```bash
-axm monitoring stream <id>     # Live telemetry streaming right in your terminal
-axm gen tk <id>                # Drops Prisma-ready URLs straight to your clipboard
-axm branches urls <branch-id>  # Prisma URLs for the active project branch
-axm branches urls --name feat  # Resolve branch by name in the active project
-axm gen tk --branch feat       # Alias path for branch Prisma URLs
-axm secrets generate           # Generates a fresh, secure crypto token
-```
-
-### Shortcuts
+## Sign in
 
 ```bash
-axm -li                        # login
-axm -pr -ls                    # projects list
-axm -br -url --name feat       # branches urls --name feat
-axm -g -tk --branch feat       # gen tk --branch feat
+axm login
+axm -li
 ```
 
-Branch URL output is always a copy-paste Prisma block:
+The CLI opens Square IdP in your browser and uses OAuth 2.0 with PKCE. If the loopback callback cannot complete, paste the authorization code or the full redirect URL back into the terminal.
+
+```text
+◒  Complete sign-in in browser…
+◇  Paste the authorization code or full redirect URL:
+◇  AxiomDB OAuth complete
+```
+
+## Projects by name
+
+```bash
+axm projects list
+axm projects use "Square Experience"
+axm projects use square_experience-main
+axm projects current
+```
+
+IDs still work, but names and app slugs are the normal path. If a name is duplicated, the CLI asks you to pick the right project.
+
+## Branches
+
+```bash
+axm branches list
+axm branches create --name feature-auth --lifespan 7d
+axm branches urls --name feature-auth
+axm branches delete feature-auth
+```
+
+Branch URL output is always Prisma-ready:
 
 ```env
 DATABASE_URL="postgresql://...@db.squareexp.com:6432/<branch-db>?sslmode=require"
 DIRECT_URL="postgresql://...@db.squareexp.com:5432/<branch-db>?sslmode=require"
 ```
 
-### The Vibe Check (Illustration)
+## Network access
 
-```text
-          ●●●●            
-        ●●●●●●●●            A X I O M  D B
-       ●●●●●●●●●●           Database control plane
-      ●●●●●●●●●●●●        
-     ●●●●●●●●●●●●●●         ▸ Multi-branch Postgres
-      ●●●●●●●●●●●●          ▸ Prisma-ready connections
-       ●●●●●●●●●●           ▸ Real-time monitoring
-        ●●●●●●●●          
-          ●●●●              v0.1.5
+If your machine cannot reach `db.squareexp.com`, allow the current IP:
+
+```bash
+axm network allow --current
+axm -ne add --current
 ```
 
-## 🐛 Something broke? 
+Other useful network commands:
 
-If the CLI throws an error or acts out of pocket, we need to know.
-1. Run your command again with the `--verbose` flag (if applicable) to catch the receipts.
-2. Open an issue on our [GitHub Repo](https://github.com/squareexp/axiomdb-cli/issues).
-3. Drop the logs and let us know your OS (macOS/Linux/Windows). We'll patch it ASAP.
+```bash
+axm network list
+axm network allow 203.0.113.10/32 --ports both --label "Office VPN"
+axm network revoke <rule-id>
+axm network public-mode restricted
+axm network public-mode public_runtime
+```
+
+Keep `restricted` as the default. Use public modes only when you mean it.
+
+## Dashboard
+
+```bash
+axm dashboard
+axm -da
+```
+
+The TUI shows projects, metrics, and recent audit events without leaving the terminal.
+
+## Shortcuts
+
+```bash
+axm -li
+axm -pr -ls
+axm -br -url --name feature-auth
+axm -ne add --current
+axm -da
+axm -g -tk --branch feature-auth
+```
+
+## Diagnostics
+
+```bash
+axm whoami
+axm monitoring summary
+axm audit list --limit 20
+```

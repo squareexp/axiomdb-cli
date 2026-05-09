@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Subcommand;
 
-use crate::{api, art, config, credentials, display};
+use crate::{api, art, credentials, display, utils::resource};
 
 #[derive(Subcommand)]
 pub enum GenCmd {
@@ -23,7 +23,7 @@ pub async fn run(cmd: GenCmd) -> Result<()> {
 }
 
 async fn tk(project_id: Option<String>, branch: Option<String>) -> Result<()> {
-    let project_id = config::resolve_project(project_id.as_deref())?;
+    let project_id = resource::resolve_project(project_id.as_deref()).await?;
     let sp = art::spinner("Resolving project DB URLs…");
     let path = credentials_path(&project_id, branch.as_deref());
     let creds: credentials::Credentials = api::get(&path).await?;

@@ -3,7 +3,7 @@ use clap::Subcommand;
 use dialoguer::{Confirm, Input, Select};
 use serde::{Deserialize, Serialize};
 
-use crate::{api, art, commands::gen, config, credentials, display};
+use crate::{api, art, commands::gen, credentials, display, utils::resource};
 
 #[derive(Subcommand)]
 pub enum BranchesCmd {
@@ -30,8 +30,13 @@ pub enum BranchesCmd {
     /// Delete a branch
     #[clap(visible_alias = "rm")]
     Delete {
-        project_id: String,
-        branch_id: String,
+        /// Branch name/ID, or project name/ID when a second positional is provided
+        first: String,
+        /// Branch name/ID when the first positional is the project
+        second: Option<String>,
+        /// Project name/ID (omit to use active context)
+        #[arg(short, long)]
+        project: Option<String>,
         #[arg(short, long)]
         yes: bool,
     },
@@ -80,7 +85,7 @@ struct CreateBranchRequest {
 pub async fn run(cmd: BranchesCmd) -> Result<()> {
     match cmd {
         BranchesCmd::List { project_id } => {
-            list(config::resolve_project(project_id.as_deref())?).await
+            list(resource::resolve_project(project_id.as_deref()).await?).await
         }
         BranchesCmd::Create {
             project_id,
@@ -89,7 +94,7 @@ pub async fn run(cmd: BranchesCmd) -> Result<()> {
             lifespan,
         } => {
             create(
-                config::resolve_project(project_id.as_deref())?,
+                resource::resolve_project(project_id.as_deref()).await?,
                 name,
                 source,
                 lifespan,
@@ -97,17 +102,18 @@ pub async fn run(cmd: BranchesCmd) -> Result<()> {
             .await
         }
         BranchesCmd::Delete {
-            project_id,
-            branch_id,
+            first,
+            second,
+            project,
             yes,
-        } => delete(project_id, branch_id, yes).await,
+        } => delete(first, second, project, yes).await,
         BranchesCmd::Urls {
             branch_id,
             name,
             project,
         } => {
             urls(
-                config::resolve_project(project.as_deref())?,
+                resource::resolve_project(project.as_deref()).await?,
                 branch_id,
                 name,
             )
@@ -206,10 +212,25 @@ async fn create(
     Ok(())
 }
 
-async fn delete(project_id: String, branch_id: String, yes: bool) -> Result<()> {
+async fn delete(
+    first: String,
+    second: Option<String>,
+    project: Option<String>,
+    yes: bool,
+) -> Result<()> {
+    let (project_ref, branch_ref) = match second {
+        Some(branch_ref) => (Some(first), branch_ref),
+        None => (project, first),
+    };
+    let project_id = resource::resolve_project(project_ref.as_deref()).await?;
+    let branch = resource::resolve_branch(&project_id, &branch_ref).await?;
+
     if !yes {
         let ok = Confirm::new()
-            .with_prompt(format!("Delete branch {branch_id}? This cannot be undone."))
+            .with_prompt(format!(
+                "Delete branch {} ({})? This cannot be undone.",
+                branch.branch_name, branch.database_name
+            ))
             .default(false)
             .interact()?;
         if !ok {
@@ -218,7 +239,7 @@ async fn delete(project_id: String, branch_id: String, yes: bool) -> Result<()> 
     }
 
     let sp = art::spinner("Deleting branch…");
-    api::delete_req(&format!("/projects/{project_id}/branches/{branch_id}")).await?;
+    api::delete_req(&format!("/projects/{project_id}/branches/{}", branch.id)).await?;
     sp.finish_and_clear();
     display::ok("Branch deleted.");
     Ok(())

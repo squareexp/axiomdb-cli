@@ -4,16 +4,16 @@ use colored::Colorize;
 use futures_util::StreamExt;
 use serde::Deserialize;
 
-use crate::{api, art, display};
+use crate::{api, art, display, utils::resource};
 
 #[derive(Subcommand)]
 pub enum MonitoringCmd {
     /// Show current health metrics for a project
     #[clap(visible_alias = "sum")]
-    Summary { project_id: String },
+    Summary { project_ref: Option<String> },
     /// Stream live metrics (SSE — Ctrl+C to stop)
     #[clap(visible_alias = "st")]
-    Stream { project_id: String },
+    Stream { project_ref: Option<String> },
 }
 
 #[derive(Deserialize)]
@@ -28,12 +28,13 @@ struct MonitoringSummary {
 
 pub async fn run(cmd: MonitoringCmd) -> Result<()> {
     match cmd {
-        MonitoringCmd::Summary { project_id } => summary(project_id).await,
-        MonitoringCmd::Stream { project_id } => stream(project_id).await,
+        MonitoringCmd::Summary { project_ref } => summary(project_ref).await,
+        MonitoringCmd::Stream { project_ref } => stream(project_ref).await,
     }
 }
 
-async fn summary(project_id: String) -> Result<()> {
+async fn summary(project_ref: Option<String>) -> Result<()> {
+    let project_id = resource::resolve_project(project_ref.as_deref()).await?;
     let sp = art::spinner("Fetching metrics…");
     let s: MonitoringSummary =
         api::get(&format!("/projects/{project_id}/monitoring/summary")).await?;
@@ -60,7 +61,8 @@ async fn summary(project_id: String) -> Result<()> {
     Ok(())
 }
 
-async fn stream(project_id: String) -> Result<()> {
+async fn stream(project_ref: Option<String>) -> Result<()> {
+    let project_id = resource::resolve_project(project_ref.as_deref()).await?;
     let path = format!("/projects/{project_id}/monitoring/stream");
     display::info(&format!(
         "Streaming metrics for {project_id}  (Ctrl+C to stop)\n"

@@ -1,9 +1,12 @@
 mod api;
 mod art;
+mod auth;
 mod commands;
 mod config;
 mod credentials;
 mod display;
+mod tui;
+mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -15,8 +18,10 @@ use commands::{
     auth::AuthCmd,
     backups::BackupsCmd,
     branches::BranchesCmd,
+    dashboard::DashboardCmd,
     gen::GenCmd,
     monitoring::MonitoringCmd,
+    network::NetworkCmd,
     projects::ProjectsCmd,
     secrets::SecretsCmd,
     tables::TablesCmd,
@@ -38,14 +43,18 @@ use commands::{
         "  \x1b[38;2;255;140;0maxm whoami\x1b[0m                     Show current session\n",
         "  \x1b[38;2;255;140;0maxm projects list\x1b[0m              List all projects\n",
         "  \x1b[38;2;255;140;0maxm projects use <id>\x1b[0m           Set active project context\n",
+        "  \x1b[38;2;255;140;0maxm projects use \"Square Experience\"\x1b[0m  Project names work too\n",
         "  \x1b[38;2;255;140;0maxm branches list\x1b[0m               List branches for active project\n",
+        "  \x1b[38;2;255;140;0maxm network allow --current\x1b[0m       Allow this machine IP\n",
+        "  \x1b[38;2;255;140;0maxm dashboard\x1b[0m                   Open the terminal dashboard\n",
         "  \x1b[38;2;255;140;0maxm branches urls --name feature-x\x1b[0m  Print branch Prisma URLs\n",
         "  \x1b[38;2;255;140;0maxm gen tk --branch feature-x\x1b[0m   Same branch URL flow via gen\n",
         "  \x1b[38;2;255;140;0maxm monitoring stream <id>\x1b[0m     Live SSE stream\n",
         "\n\x1b[38;2;255;140;0m\x1b[1mShortcuts:\x1b[0m\n",
         "  -li login, -lo logout, -me whoami\n",
-        "  -au auth, -pr projects, -br branches, -mo monitoring\n",
+        "  -au auth, -pr projects, -br branches, -ne network, -mo monitoring\n",
         "  -tb tables, -bk backups, -se secrets, -ad audit, -jb jobs, -g gen\n",
+        "  -da dashboard\n",
         "  Subcommands also accept compact forms: -ls list, -cr create, -rm delete, -url urls\n",
     )
 )]
@@ -93,11 +102,23 @@ enum Commands {
         #[command(subcommand)]
         cmd: BranchesCmd,
     },
+    /// Manage database network allowlists and public mode
+    #[clap(visible_alias = "ne", alias = "net")]
+    Network {
+        #[command(subcommand)]
+        cmd: NetworkCmd,
+    },
     /// Real-time monitoring
     #[clap(visible_alias = "mo", alias = "mon")]
     Monitoring {
         #[command(subcommand)]
         cmd: MonitoringCmd,
+    },
+    /// Open a terminal dashboard
+    #[clap(visible_alias = "da", alias = "dash")]
+    Dashboard {
+        #[command(subcommand)]
+        cmd: Option<DashboardCmd>,
     },
     /// Inspect database tables
     #[clap(visible_alias = "tb")]
@@ -166,7 +187,11 @@ async fn run() -> Result<()> {
         Commands::Auth { cmd } => commands::auth::run(cmd).await,
         Commands::Projects { cmd } => commands::projects::run(cmd).await,
         Commands::Branches { cmd } => commands::branches::run(cmd).await,
+        Commands::Network { cmd } => commands::network::run(cmd).await,
         Commands::Monitoring { cmd } => commands::monitoring::run(cmd).await,
+        Commands::Dashboard { cmd } => {
+            commands::dashboard::run(cmd.unwrap_or(DashboardCmd::Open)).await
+        }
         Commands::Tables { cmd } => commands::tables::run(cmd).await,
         Commands::Backups { cmd } => commands::backups::run(cmd).await,
         Commands::Secrets { cmd } => commands::secrets::run(cmd).await,
@@ -188,7 +213,9 @@ where
             Some("-au") => OsString::from("auth"),
             Some("-pr") => OsString::from("projects"),
             Some("-br") => OsString::from("branches"),
+            Some("-ne") => OsString::from("network"),
             Some("-mo") => OsString::from("monitoring"),
+            Some("-da") => OsString::from("dashboard"),
             Some("-tb") => OsString::from("tables"),
             Some("-bk") => OsString::from("backups"),
             Some("-se") => OsString::from("secrets"),

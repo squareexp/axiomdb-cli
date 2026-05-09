@@ -9,6 +9,10 @@ pub struct Tokens {
     pub refresh_token: String,
     pub email: String,
     pub role: String,
+    #[serde(default)]
+    pub expires_at: Option<String>,
+    #[serde(default)]
+    pub client_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -95,6 +99,7 @@ pub fn clear_current_project() -> Result<()> {
 }
 
 /// Returns the current project id — from arg if given, else from saved context, else errors.
+#[allow(dead_code)]
 pub fn resolve_project(arg: Option<&str>) -> Result<String> {
     if let Some(id) = arg {
         return Ok(id.to_string());

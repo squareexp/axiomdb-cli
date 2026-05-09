@@ -1,6 +1,6 @@
 [package]
 name = "axiom-db"
-version = "0.1.5"
+version = "0.1.10"
 edition = "2021"
 description = "Official CLI for AxiomDB — manage projects, branches, secrets and monitoring from your terminal "
 license = "MIT"
@@ -36,6 +36,8 @@ dialoguer = { version = "0.11", features = ["password"] }
 indicatif = "0.17"
 colored = "2"
 comfy-table = "7"
+ratatui = "0.26"
+crossterm = "0.27"
 
 # Config storage
 dirs = "5"
@@ -45,6 +47,12 @@ chrono = { version = "0.4", features = ["serde"] }
 
 # UUID
 uuid = { version = "1", features = ["v4"] }
+rand = "0.8"
+oauth2 = { version = "4", default-features = false }
+open = "5"
+tiny_http = "0.12"
+base64 = "0.22"
+url = "2"
 
 # SSE streaming
 futures-util = "0.3"
