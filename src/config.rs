@@ -26,7 +26,7 @@ pub struct Config {
 }
 
 fn default_base_url() -> String {
-    "https://opsdc.squareexp.com".to_string()
+    "https://api.axiomdb.squareexp.com".to_string()
 }
 
 impl Default for Config {
